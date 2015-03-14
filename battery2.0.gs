@@ -7,7 +7,17 @@ var spreadSheet = SpreadsheetApp.openById(spreadSheetId);
 var dataSheet = spreadSheet.getSheetByName("Дані");
 var allBatteriesSheet = spreadSheet.getSheetByName("Всі");
 var badBatteriesSheet = spreadSheet.getSheetByName("Списані");
+ 
 
+function getHistory (year, number){
+  var history = [];
+  for (var j=0; j<allUsedData.length; j++){
+    if (allUsedData[j][1].toString() ===  year && allUsedData[j][2].toString()  ===  number){
+      history.push(allUsedData[j]);
+    };
+  };
+  return history;
+};
 
 function gogogo() {
   "use strict";
@@ -24,7 +34,7 @@ function gogogo() {
       };
     };
   };
-  //output - array [year, date]
+  //output - array [year, number]
            
   //get all data only used battery  
   var allData = dataSheet.getRange(2, 1, dataSheet.getLastRow(), 4).getValues(); 
@@ -36,126 +46,104 @@ function gogogo() {
       };
     };
   };
-  //output - array [day, year, date, action]
+  //output - array [day, year, number, action]
   
   //get last action with all used batteries
   var lastActionBatteries = [];
-  for (var i=0; i<allUsedData.length; i++){
-    for (var j=i+1; j<allUsedData.length; j++){
+  for (i = 0; i<allUsedData.length; i++){
+    for (j = i + 1; j < allUsedData.length; j++){
       if (allUsedData[i][1].toString() == allUsedData[j][1].toString() && allUsedData[i][2].toString() == allUsedData[j][2].toString()){
         j = ++i;  // i = i+1; j=i
       };
     };
     lastActionBatteries.push(allUsedData[i]);
   };
-  //output - array [day, year, date, action]
+  //output - array [day, year, number, action]
 
   
   //format massive with current state battery, last element is column in view
   var newActionBattery = []; 
   for (var i in lastActionBatteries){
+    var action = lastActionBatteries[i][3];
+
     //if we haven't battery
-    if (lastActionBatteries[i][3] === "Віддали"){ 
+    if (action === "Віддали"){ 
       newActionBattery.push([lastActionBatteries[i][1], lastActionBatteries[i][2], "Віддали", "Віддали"]);
     };
     // if last charge < 14 days & last charge > 1500 mah
-    if ((!isNaN(parseInt(lastActionBatteries[i][3]))) && (Math.round((new Date().getTime() - lastActionBatteries[i][0].getTime()) / (1000*60*60*24))<14) && (lastActionBatteries[i][3]>1500)){
-      newActionBattery.push([lastActionBatteries[i][1], lastActionBatteries[i][2], lastActionBatteries[i][3], "Готові"]);
+    if ((!isNaN(parseInt(action))) &&
+        (Math.round((new Date().getTime() - lastActionBatteries[i][0].getTime()) / (1000*60*60*24))<14) &&
+        (action>1500)) {
+          newActionBattery.push([lastActionBatteries[i][1], lastActionBatteries[i][2], action, "Готові"]);
     };
     //if battery charge now
-    if (lastActionBatteries[i][3] === "Break-in" || lastActionBatteries[i][3] === "Refresh" || lastActionBatteries[i][3] === "Cycle"){
-      newActionBattery.push([lastActionBatteries[i][1],lastActionBatteries[i][2], lastActionBatteries[i][3],'На зарядці']);
+    if (action === "Break-in" || 
+        action === "Refresh" || 
+        action === "Cycle") {
+          newActionBattery.push([lastActionBatteries[i][1],lastActionBatteries[i][2], action,'На зарядці']);
     };
     //if we must charge battery
-    if  (lastActionBatteries[i][3] === "Отримали" || (!isNaN(parseInt(lastActionBatteries[i][3])) && (Math.round((new Date().getTime() - lastActionBatteries[i][0].getTime()) / (1000*60*60*24))>=14 || lastActionBatteries[i][3]<1500))) {
-      var history = [];
+    if  (action === "Отримали" ||
+        (!isNaN(parseInt(action)) &&
+        (Math.round((new Date().getTime() - lastActionBatteries[i][0].getTime()) / (1000*60*60*24))>=14 ||
+         action<1500))) {
       var year = lastActionBatteries[i][1];
-      var date = lastActionBatteries[i][2];
-      for (var j=0; j<allUsedData.length; j++){
-        if (allUsedData[j][1].toString() ==  year && allUsedData[j][2].toString()  ==  date){
-          history.push(allUsedData[j]);
-        }
-      }
-      var temp_break = -1;
-      var temp_refresh = -1;
-      var temp_refresh2 = 0;
-      var temp_charge = 0;
-      var temp_charge_date = 0;
-      var temp_charge_value = 0;
+      var number = lastActionBatteries[i][2];
+      var history =  getHistory(year, number); //get histroyy this battery
+      var lastBreakIn = -1; //0 - its first in array it can be
+      var lasrRefresh = -1; //similar
+      var countCharge = 0;  //
+      var lastChargeDate = 0;
+      var lastChargeValue = 0;
       for (var k=0; k<history.length; k++){
-        if (history[k][3].toString() == "Break-in")
-          temp_break = i; //визначає коли останній раз був брейк ін
-        if (history[k][3].toString() == "Refresh")
-          temp_refresh = i; //визначає коли останній раз був рефреш
-        if (history[k][3].toString() == "Break-in" || history[k][3].toString() == "Refresh" || history[k][3].toString() == "Cycle"){
-          temp_charge_date = history[k][0]; //визначає коли останній раз була зарядка
-        }
-        if (!isNaN(history[k][3]))
-          temp_charge_value = history[k][3]; //Визначає останню ємність якою була заряжена
-      }
-      Logger.log(temp_break);
-      Logger.log(temp_refresh);
-      Logger.log(temp_charge_date);
-      Logger.log(temp_charge_value);
-        if (temp_break == -1){ //Якщо не було брейкіну - каже треба брейін
-          newActionBattery.push([year, date, "Break-in", "Потребують зарядки"]);
-        }
-        else { 
-          var day_charge = Math.round((new Date().getTime() - temp_charge_date.getTime()) / (1000*60*60*24)); 
-          if (day_charge >= 90) //Якщо заряжалась останній раз 90 днів назад - Брейкін
-            newActionBattery.push([year, date, "Break-in", "Потребують зарядки"]);
-          else {
-            if (temp_charge_value<1500)  //Якщо зарядилась на менше 1500 - брейкін
-              newActionBattery.push([year, date, "Break-in", "Потребують зарядки"]);
-            else{
-              if (day_charge>=10 && day_charge <30)  //Якшо заряжалась останній раз більше 14 днів - рефреш
-                newActionBattery.push([year, date, "Refresh", "Потребують зарядки"]);
-              else {
-                if (day_charge>=30)
-                  newActionBattery.push([year, date, "Break-in", "Потребують зарядки"]);
-                else{
-                  for (var n=temp_break; n<history.length; n++)
-                    if (history[n][3].toString() == "Refresh")
-                      temp_refresh2++;
-                  if (temp_refresh == -1)
-                    temp_refresh = temp_break;
-                  for (var m=temp_refresh; m<history.length; m++)
-                    if (history[m][3].toString() == "Cycle")
-                      temp_charge++;
-                  if (temp_charge >= 9 ) 
-                    newActionBattery.push( [year, date, "Refresh", "Потребують зарядки"]);
-                  else 
-                    newActionBattery.push([year, date, "Cycle", "Потребують зарядки"]);
-                }
-              }
-            }
-          }  
-        }
-      
-      
-      
-    }
-  }
- return newActionBattery;
-
-  
-}
-//function gogogo() {
-
-// формує масив Всі мінус списані
-
-//}
-  
-  // (стара функція) (стара змінна)  (нова змінна)        (пояснення)
-  // (given)           (battery_given)   battery_given      -  батарейки що віддали комусь
-  // (charget_on)      (max_battery)     charget_battery    -  батарейки готові до використання
-  // (on_charge)       (on_chargest)     battery_in_charge  -  батарейки на зарядці
-  // (need_charge)     (down_battery)    down_battery.push  -  батарейки на зарядку
-
-
-
-
-
+        var historyAction = history[k][3];
+        if (historyAction.toString() == "Break-in"){
+          lastBreakIn = k; //визначає коли останній раз був брейк ін
+        };
+        if (historyAction.toString() == "Refresh"){
+          lastRefresh = k; //визначає коли останній раз був рефреш
+        };
+        if (historyAction.toString() == "Break-in" || historyAction.toString() == "Refresh" || historyAction.toString() == "Cycle"){
+          lastChargeDate = history[k][0]; //визначає коли останній раз була зарядка
+        };
+        if (!isNaN(historyAction)){
+          lastChargeValue = historyAction; //Визначає останню ємність якою була заряжена
+        };
+      };
+      if (lastBreakIn == -1){ //Якщо не було брейкіну - каже треба брейін
+        newActionBattery.push([year, number, "Break-in", "Потребують зарядки"]);
+      }else { 
+        var day_charge = Math.round((new Date().getTime() - lastChargeDate.getTime()) / (1000*60*60*24)); 
+        if (day_charge >= 90){ //Якщо заряжалась останній раз 90 днів назад - Брейкін
+          newActionBattery.push([year, number, "Break-in", "Потребують зарядки"]);
+        }else { if (lastChargeValue<1500){ //Якщо зарядилась на менше 1500 - брейкін
+            newActionBattery.push([year, number, "Break-in", "Потребують зарядки"]);
+          }else{ if (day_charge>=30){//Якшо заряжалась останній раз більше 30 днів 
+              newActionBattery.push([year, number, "Break-in", "Потребують зарядки"]);
+            }else { if (day_charge>=10){  //Якшо заряжалась останній раз більше 14 днів - рефреш
+                newActionBattery.push([year, number, "Refresh", "Потребують зарядки"]);
+              }else{ if (lastRefresh == -1){
+                  lastRefresh = lastBreakIn;
+                };
+                for (var m=lastRefresh; m<history.length; m++){
+                  if (history[m][3].toString() == "Cycle"){
+                    countCharge++;
+                  };
+                };
+                if (countCharge >= 9 ){ 
+                  newActionBattery.push( [year, number, "Refresh", "Потребують зарядки"]);
+                }else{
+                  newActionBattery.push([year, number, "Cycle", "Потребують зарядки"]);
+                };
+              };
+            };
+          };
+        };  
+      };
+    };
+  };//end cycle lastActiobBatteries
+  return newActionBattery;
+};
 
 function doGet(){
   
