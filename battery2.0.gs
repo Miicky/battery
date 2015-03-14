@@ -1,71 +1,79 @@
-var doc = "0Arh5AkewvAnpdHF1ejNBVzJHN0tpMGdwUDZsWVdLUmc";
+var spreadSheetId = "0Arh5AkewvAnpdHF1ejNBVzJHN0tpMGdwUDZsWVdLUmc"; 
+
+// change
 var ko = 0;
-var mydoc = SpreadsheetApp.getActiveSpreadsheet (); //бере активну таблицю
-var ss = SpreadsheetApp.openById(doc); //бере таблицю списку працівників
-var sheet = ss.getSheetByName("Дані");
-var sheet2 = ss.getSheetByName("Всі");
-var sheet3 = ss.getSheetByName("Списані");
+
+var spreadSheet = SpreadsheetApp.openById(spreadSheetId);
+var dataSheet = spreadSheet.getSheetByName("Дані");
+var allBatteriesSheet = spreadSheet.getSheetByName("Всі");
+var badBatteriesSheet = spreadSheet.getSheetByName("Списані");
 
 
-function gogogo(){
-// формує масив Всі мінус списані
-  var used_battery = sheet2.getRange(2, 1, sheet2.getLastRow()-1, 2).getValues();
-  var mas = [];
-  if (sheet3.getLastRow() > 1){
-    var del_battery = sheet3.getRange(2, 1, sheet3.getLastRow()-1, 2).getValues();
-    for (var i in used_battery)
-      for (var j in del_battery)
-        if (used_battery[i].toString() == del_battery[j].toString())
-        mas.push(i);
-  }
-  //used_battery.splice(i, 1);
-  //used_battery - всі крім списаних
-  var mmm = 0;
-  for (var i in mas){
-    used_battery.splice(mas[i]-mmm,1);
-    mmm++;
-  }
-        
-  //Зчитує всю історію крім тих шо списані
-  var last_row_sheet = sheet.getLastRow();
-  var all_battery = sheet.getRange(2,1,last_row_sheet,4).getValues(); 
-  var clear_history = [];
-  for (var i in all_battery)
-    for (var j in used_battery)
-      if (all_battery[i][1].toString() == used_battery[j][0].toString() && all_battery[i][2].toString() == used_battery[j][1].toString())
-      clear_history.push(all_battery[i]);
-  //clear_history - вся історія крім списаних
+function gogogo() {
+  "use strict";
+  var allBatteries = allBatteriesSheet.getRange(2, 1, allBatteriesSheet.getLastRow() - 1, 2).getValues();
+
+  //get only usable battery
+  if (badBatteriesSheet.getLastRow() > 1) {
+    var badBatteries = badBatteriesSheet.getRange(2, 1, badBatteriesSheet.getLastRow() - 1, 2).getValues();
+    for (var i in allBatteries) {
+      for (var j in badBatteries) {
+        if (allBatteries[i].toString() === badBatteries[j].toString()){
+          allBatteries.splice(i,1);
+        };
+      };
+    };
+  };
+  //output - array [year, date]
+           
+  //get all data only used battery  
+  var allData = dataSheet.getRange(2, 1, dataSheet.getLastRow(), 4).getValues(); 
+  var allUsedData = [];
+  for (i in allData){
+    for (j in allBatteries){
+      if (allData[i][1].toString() == allBatteries[j][0].toString() && allData[i][2].toString() == allBatteries[j][1].toString()){
+        allUsedData.push(allData[i]);
+      };
+    };
+  };
+  //output - array [day, year, date, action]
   
-  var last_active_battery = [];
-  for (var i=0; i<clear_history.length; i++){
-    for (var j=i+1; j<clear_history.length; j++)
-      if (clear_history[i][1].toString() == clear_history[j][1].toString() && clear_history[i][2].toString() == clear_history[j][2].toString())
-      j = ++i;  // i = i+1; j=i
-    last_active_battery.push(clear_history[i]);
-  }
-  //last_active_battery - всі батарейки крім списаних - остання дія з ними
+  //get last action with all used batteries
+  var lastActionBatteries = [];
+  for (var i=0; i<allUsedData.length; i++){
+    for (var j=i+1; j<allUsedData.length; j++){
+      if (allUsedData[i][1].toString() == allUsedData[j][1].toString() && allUsedData[i][2].toString() == allUsedData[j][2].toString()){
+        j = ++i;  // i = i+1; j=i
+      };
+    };
+    lastActionBatteries.push(allUsedData[i]);
+  };
+  //output - array [day, year, date, action]
+
   
-  var battery_given = [];
-  var charget_battery = [];
-  var battery_in_charge = [];
-  var down_battery = [];
-  var doing_battery = [];
-  
-  
-  for (var i in last_active_battery){
-    if (last_active_battery[i][3] == "Віддали")
-      doing_battery.push([last_active_battery[i][1], last_active_battery[i][2], "Віддали", "Віддали"]);
-    if ((!isNaN(parseInt(last_active_battery[i][3]))) && (Math.round((new Date().getTime() - last_active_battery[i][0].getTime()) / (1000*60*60*24))<14) && (last_active_battery[i][3]>1500))
-      doing_battery.push([last_active_battery[i][1], last_active_battery[i][2], last_active_battery[i][3], "Готові"]);
-      if (last_active_battery[i][3] == "Break-in" || last_active_battery[i][3] == "Refresh" || last_active_battery[i][3] == "Cycle")
-      doing_battery.push([last_active_battery[i][1],last_active_battery[i][2], last_active_battery[i][3],'На зарядці']);
-    if  (last_active_battery[i][3] == "Отримали" || (!isNaN(parseInt(last_active_battery[i][3])) && (Math.round((new Date().getTime() - last_active_battery[i][0].getTime()) / (1000*60*60*24))>=14 || last_active_battery[i][3]<1500))) {
+  //format massive with current state battery, last element is column in view
+  var newActionBattery = []; 
+  for (var i in lastActionBatteries){
+    //if we haven't battery
+    if (lastActionBatteries[i][3] === "Віддали"){ 
+      newActionBattery.push([lastActionBatteries[i][1], lastActionBatteries[i][2], "Віддали", "Віддали"]);
+    };
+    // if last charge < 14 days & last charge > 1500 mah
+    if ((!isNaN(parseInt(lastActionBatteries[i][3]))) && (Math.round((new Date().getTime() - lastActionBatteries[i][0].getTime()) / (1000*60*60*24))<14) && (lastActionBatteries[i][3]>1500)){
+      newActionBattery.push([lastActionBatteries[i][1], lastActionBatteries[i][2], lastActionBatteries[i][3], "Готові"]);
+    };
+    //if battery charge now
+    if (lastActionBatteries[i][3] === "Break-in" || lastActionBatteries[i][3] === "Refresh" || lastActionBatteries[i][3] === "Cycle"){
+      newActionBattery.push([lastActionBatteries[i][1],lastActionBatteries[i][2], lastActionBatteries[i][3],'На зарядці']);
+    };
+    //if we must charge battery
+    if  (lastActionBatteries[i][3] === "Отримали" || (!isNaN(parseInt(lastActionBatteries[i][3])) && (Math.round((new Date().getTime() - lastActionBatteries[i][0].getTime()) / (1000*60*60*24))>=14 || lastActionBatteries[i][3]<1500))) {
       var history = [];
-      var year = last_active_battery[i][1];
-      var date = last_active_battery[i][2];
-      for (var j=0; j<clear_history.length; j++){
-        if (clear_history[j][1].toString() ==  year && clear_history[j][2].toString()  ==  date){
-          history.push(clear_history[j]);
+      var year = lastActionBatteries[i][1];
+      var date = lastActionBatteries[i][2];
+      for (var j=0; j<allUsedData.length; j++){
+        if (allUsedData[j][1].toString() ==  year && allUsedData[j][2].toString()  ==  date){
+          history.push(allUsedData[j]);
         }
       }
       var temp_break = -1;
@@ -90,21 +98,21 @@ function gogogo(){
       Logger.log(temp_charge_date);
       Logger.log(temp_charge_value);
         if (temp_break == -1){ //Якщо не було брейкіну - каже треба брейін
-          doing_battery.push([year, date, "Break-in", "Потребують зарядки"]);
+          newActionBattery.push([year, date, "Break-in", "Потребують зарядки"]);
         }
         else { 
           var day_charge = Math.round((new Date().getTime() - temp_charge_date.getTime()) / (1000*60*60*24)); 
           if (day_charge >= 90) //Якщо заряжалась останній раз 90 днів назад - Брейкін
-            doing_battery.push([year, date, "Break-in", "Потребують зарядки"]);
+            newActionBattery.push([year, date, "Break-in", "Потребують зарядки"]);
           else {
             if (temp_charge_value<1500)  //Якщо зарядилась на менше 1500 - брейкін
-              doing_battery.push([year, date, "Break-in", "Потребують зарядки"]);
+              newActionBattery.push([year, date, "Break-in", "Потребують зарядки"]);
             else{
               if (day_charge>=10 && day_charge <30)  //Якшо заряжалась останній раз більше 14 днів - рефреш
-                doing_battery.push([year, date, "Refresh", "Потребують зарядки"]);
+                newActionBattery.push([year, date, "Refresh", "Потребують зарядки"]);
               else {
                 if (day_charge>=30)
-                  doing_battery.push([year, date, "Break-in", "Потребують зарядки"]);
+                  newActionBattery.push([year, date, "Break-in", "Потребують зарядки"]);
                 else{
                   for (var n=temp_break; n<history.length; n++)
                     if (history[n][3].toString() == "Refresh")
@@ -115,9 +123,9 @@ function gogogo(){
                     if (history[m][3].toString() == "Cycle")
                       temp_charge++;
                   if (temp_charge >= 9 ) 
-                    doing_battery.push( [year, date, "Refresh", "Потребують зарядки"]);
+                    newActionBattery.push( [year, date, "Refresh", "Потребують зарядки"]);
                   else 
-                    doing_battery.push([year, date, "Cycle", "Потребують зарядки"]);
+                    newActionBattery.push([year, date, "Cycle", "Потребують зарядки"]);
                 }
               }
             }
@@ -128,8 +136,15 @@ function gogogo(){
       
     }
   }
- return doing_battery;
+ return newActionBattery;
+
+  
 }
+//function gogogo() {
+
+// формує масив Всі мінус списані
+
+//}
   
   // (стара функція) (стара змінна)  (нова змінна)        (пояснення)
   // (given)           (battery_given)   battery_given      -  батарейки що віддали комусь
@@ -282,7 +297,7 @@ function tellStatus(e){
         }
         else{
           massive_log.push(on_charge[i][0]+'-'+on_charge[i][1]+' зняли з зарядки. Ємність: '+e.parameter['pow'+i]);
-          sheet.appendRow([new Date(), on_charge[i][0], on_charge[i][1] , e.parameter['pow'+i]]);
+          dataSheet.appendRow([new Date(), on_charge[i][0], on_charge[i][1] , e.parameter['pow'+i]]);
         }
    
   }
@@ -290,21 +305,21 @@ function tellStatus(e){
     b++;
     if (e.parameter['che2'+i] == "true"){
       massive_log.push(need_charge[i][0]+'-'+need_charge[i][1]+' поставили на зарядку');
-      sheet.appendRow([new Date(), need_charge[i][0], need_charge[i][1] , need_charge[i][2]]);
+      dataSheet.appendRow([new Date(), need_charge[i][0], need_charge[i][1] , need_charge[i][2]]);
     }
   }
   for (i in good){
     b++;
     if (e.parameter['che3'+i] == "true"){
       massive_log.push(good[i][0]+'-'+good[i][1]+' віддали');
-      sheet.appendRow([new Date(), good[i][0], good[i][1] , "Віддали"]);
+      dataSheet.appendRow([new Date(), good[i][0], good[i][1] , "Віддали"]);
     }
   }
   for (i in give){
     b++;
     if (e.parameter['che4'+i] == "true"){
       massive_log.push(give[i][0]+'-'+give[i][1]+' Отримали');
-      sheet.appendRow([new Date(), give[i][0], give[i][1] , "Отримали"]);
+      dataSheet.appendRow([new Date(), give[i][0], give[i][1] , "Отримали"]);
     }
   }
   ko = 1;
