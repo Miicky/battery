@@ -20,11 +20,11 @@
 			</tr>
 		</thead>
 		<tbody>
-			<tr ng-repeat="column in batteries" >
-				{{column[0]}}
-				<td ng-repeat="battery in column track by $index" class="col-md-3" >
-					<div data-toggle="collapse" data-target="#contacts{{battery.id}}" ng-click="operateBattery(battery)">
-						{{battery.name}} {{battery.status}} {{battery.date}}
+			<tr ng-repeat="tr in [0, 1, 2, 3, 4, 5]" >
+				<td ng-repeat="column in columns track by $index" class="col-md-3" >
+					{{battery = batteries[column][tr]; ""}}
+					<div data-toggle="collapse" ng-init="" data-target="#contacts{{battery.id}}" ng-click="operateBattery(battery)">
+						{{battery.name}} {{battery.status}}
 					</div>
 					<div id="contacts{{battery.id}}" class="collapse" ng-if="battery.state == 'charging'">
 	          <input type="number" class="form-control" ng-model="battery.current_capasity">

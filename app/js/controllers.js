@@ -105,6 +105,16 @@ app.controller('NewBattery', function ($scope, $http) {
   };
 });
 
+function getMaxLength(array) {
+  var max = array[Object.keys(array)[0]].length;
+  for (var i in array) {
+    if (array[i].length > max) {
+      max = array[i].length;
+    }
+  }
+  return max;
+}
+
 app.controller('DashBoard', function ($scope, $http) {
   $scope.isActive = function(route) {
      return route === $location.path();
@@ -118,9 +128,11 @@ app.controller('DashBoard', function ($scope, $http) {
     var data = $.param({data: JSON.stringify({battery})});
     $http.post(url, data)
       .success(function (data) {
+
         $scope.batteries = data;
-        $scope.loading = false;
         console.log($scope.batteries);
+        $scope.loading = false;
+        $scope.maxBattery = getMaxLength($scope.batteries)
       })
       .error(function (data){
         console.log('eroor');
@@ -155,8 +167,9 @@ app.controller('DashBoard', function ($scope, $http) {
         $scope.loading = false;
         battery.state = data.battery.state;
         battery.status = data.battery.status;
+        console.log($scope.batteries);
       }).error(function(){
-        console.log('eerriiirr');
+        console.log('Error');
         $scope.loading = false;
       });
     }
