@@ -4,16 +4,16 @@ var url = 'https://script.google.com/macros/s/AKfycby02iKFGzFNXBIax0en4VpoEGp6Pm
 app.config(function($routeProvider) {
 $routeProvider
   .when('/', {
-      templateUrl : '_new.html',
+      templateUrl : 'new.html',
   })
   .when('/index', {
-      templateUrl : '_new.html',
+      templateUrl : 'new.html',
   })
   .when('/dashboard', {
-      templateUrl : '_dashboard.html',
+      templateUrl : 'dashboard.html',
   })
   .otherwise({
-    template : '_dashboard.html',
+    template : 'dashboard.html',
   });
 });
 
