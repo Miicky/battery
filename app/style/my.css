@@ -1,0 +1,87 @@
+.loader {
+	width: 200px;
+  height: 200px;
+	display: block;
+  position: fixed;
+  z-index: 10;
+}
+
+.main-page {
+ z-index: 20;
+}
+
+.create_button{
+  width: 300px;
+  text-align: center;
+}
+
+table>tbody>tr>td {
+	cursor: pointer;
+	cursor: hand;
+}
+
+.user-action {
+	cursor: pointer;
+	cursor: hand;
+}
+
+.active-battery {
+	background-color: #F4F4F4;
+}
+
+.table-name {
+	vertical-align: bottom;
+  border-bottom: 2px solid #ddd;
+  padding: 8px;
+  line-height: 1.4286;
+  text-align: left;
+  box-sizing: border-box;
+  font-weight: bold;
+  display: table-cell;
+}
+
+
+
+
+@import url(https://fonts.googleapis.com/css?family=Roboto:400,700,400italic,700italic&subset=latin,cyrillic);
+
+@media only screen and (min-width: 0) {
+    .wrapper {
+        text-rendering: optimizeLegibility;
+    }
+}
+@media only screen and (max-width: 620px) {
+    [class=wrapper] {
+        min-width: 302px !important;
+        width: 100% !important;
+    }
+    [class=wrapper] .block {
+        display: block !important;
+    }
+    [class=wrapper] .hide {
+        display: none !important;
+    }
+
+    [class=wrapper] .top-panel,
+    [class=wrapper] .header,
+    [class=wrapper] .main,
+    [class=wrapper] .footer {
+        width: 302px !important;
+    }
+
+    [class=wrapper] .title,
+    [class=wrapper] .subject,
+    [class=wrapper] .signature,
+    [class=wrapper] .subscription {
+        display: block;
+        float: left;
+        width: 300px !important;
+        text-align: center !important;
+    }
+    [class=wrapper] .signature {
+        padding-bottom: 0 !important;
+    }
+    [class=wrapper] .subscription {
+        padding-top: 0 !important;
+    }
+}

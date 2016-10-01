@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<div
+  class="container"
+  ng-controller="NewBattery"
+  data-ng-init="init()"
+>
+  <div class="row">
+    <div class="span4">
+      <h1>Add Battery</h1>
+      <div class="form-group create_button">
+        <label for="btn_name">Name:</label>
+        <input
+          type="text"
+          ng-model="current_battery.name"
+          placeholder="Enter name"
+          id="btn_name"
+          class="form-control"
+          required
+        >
+        <label for="btn_capasity">Capisity:</label>
+        <input
+          type="number"
+          ng-model="current_battery.capasity"
+          placeholder="Enter capasity here"
+          id="btn_capasity"
+          class="form-control"
+          required
+        >
+        <!-- Move this logic to controller -->
+        <br />
+        <input
+          type="button"
+          value = "{{okButtonValue}}"
+          ng-click="okButtonValue == 'Add' ? createBattery(current_battery, $index) : editBattery(current_battery, $index)"
+          ng-disabled ="!current_battery.name || !current_battery.capasity"
+          class="form-control"
+        >
+        <hr>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="row">
+      <div class="col-md-2 col-md-offset-5">
+        <img src="img/default.gif" class="loader" alt="loader" ng-show="loading" />
+     </div>
+    </div>
+    <table class="table table-hover">
+      <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Capasity</th>
+        <th>Date On</th>
+        <th>Date Off</th>
+        <th>All Cycle Count</th>
+        <th>Cycle Count</th>
+        <th>Date Last Cycle</th>
+        <th>All refresh count</th>
+        <th>Refresh Count</th>
+        <th>Date Last Refresh</th>
+        <th>Break-in Count</th>
+        <th>Date Last Break-in</th>
+        <th>Edit</th>
+        <th>Delete</th>
+      </tr>
+      <tr ng-repeat="battery in batteries track by $index" ng-class="battery == current_battery ? 'active-battery': ''">
+        <td>{{battery.id}}</td>
+        <td>{{battery.name}}</td>
+        <td>{{battery.capasity}}</td>
+        <td>{{battery.date_on | date:'dd.MM.yy'}}</td>
+        <td>{{battery.date_off}}</td>
+        <td>{{battery.all_count_cycle}}</td>
+        <td>{{battery.count_cycle}}</td>
+        <td>{{battery.date_cycle | date:'dd.MM.yy'}}</td>
+        <td>{{battery.all_count_refresh}}</td>
+        <td>{{battery.count_refresh}}</td>
+        <td>{{battery.date_refresh | date:'dd.MM.yy'}}</td>
+        <td>{{battery.count_breakin}}</td>
+        <td>{{battery.date_breakin | date:'dd.MM.yy'}}</td>
+        <td ng-click="setEditBattery(battery.id, $index)" class="user-action">Edit</td>
+        <td ng-click="deleteBattery(battery.id, $index)" class="user-action">Delete</td>
+      </tr>
+    </table>
+  </div>
+</div>

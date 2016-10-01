@@ -1,2 +1,0 @@
-# battery
-Control of battery

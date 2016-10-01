@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<div class="container" ng-controller="DashBoard" data-ng-init="init()">
+	<div class="row">
+		<div class="span4">
+			<h1> Dashboard table </h1>
+    </div>
+	</div>
+  <div class="row">
+    <div class="col-md-2 col-md-offset-5">
+      <img src="img/default.gif" class="loader" alt="loader" ng-show="loading" />
+   </div>
+  </div>
+	<table class="table table-hover">
+		<thead>
+			<tr>
+				<th>need</th>
+				<th>charging</th>
+				<th>ready</th>
+				<th>absent</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="column in batteries" >
+				{{column[0]}}
+				<td ng-repeat="battery in column track by $index" class="col-md-3" >
+					<div data-toggle="collapse" data-target="#contacts{{battery.id}}" ng-click="operateBattery(battery)">
+						{{battery.name}} {{battery.status}} {{battery.date}}
+					</div>
+					<div id="contacts{{battery.id}}" class="collapse" ng-if="battery.state == 'charging'">
+	          <input type="number" class="form-control" ng-model="battery.current_capasity">
+	          <input type="submit" class="form-control" ng-click="operateBattery(battery)" ng-disabled ="!battery.current_capasity" data-toggle="collapse" data-target="#contacts{{battery.id}}">
+	        </div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

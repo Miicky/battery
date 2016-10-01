@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ua" ng-app="batteriesApp">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>All Batteries</title>
+    <link rel="stylesheet" href="style/my.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.0.1.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="js/angular.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/angular-route.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/controllers.js" type="text/javascript" charset="utf-8"></script>
+  </head>
+  <body>
+    <div class="main-page">
+      <nav class="navbar navbar-default navbar-static-top">
+        <div class="container">
+          <ul class="nav navbar-nav">
+            <li ng-class="{active:isActive('/new')}"><a href="#index">Add Battery</a></li>
+            <li ng-class="{active:isActive('/dashboard')}"> <a href="#dashboard">Dashboard</a></li>
+          </ul>
+        </div>
+      </nav>
+      <div ng-view></div>
+    </div>
+    <!-- <div id="qunit"></div>
+    <div id="qunit-fixture"></div> -->
+    <!-- <script src="https://code.jquery.com/qunit/qunit-2.0.1.js"></script>
+    <script src="js/tests.js"></script> -->
+  </body>
+</html>
