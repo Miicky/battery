@@ -1,5 +1,5 @@
 var app = angular.module('batteriesApp', ['ngRoute']);
-var url = 'https://script.google.com/macros/s/AKfycbxQvEsBdgQXY4uBy6fz5l5uEjZNr0tQ1YBs4vWOhBanetaysDHq/exec';
+var url = 'https://script.google.com/macros/s/AKfycbwVTQOXZXzEKOw2NaRujZmF2tXsnsXXnfSFWptyVNwcj57pjxLt/exec';
 
 app.config(function($routeProvider) {
 $routeProvider

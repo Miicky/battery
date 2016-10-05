@@ -1,5 +1,6 @@
 function doPost(e) {
   var data = JSON.parse(e.parameter.data);
+  Logger.log('a');
   push_log([new Date(), 'income parse params', data]);
   var response = getRoute(data.battery);
   return  ContentService.createTextOutput(JSON.stringify(response)).setMimeType(ContentService.MimeType.JSON);
