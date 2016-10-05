@@ -2,19 +2,17 @@ function dashboardBatteries() {
   push_log([new Date(), 'dashboard']);
   var batteries = getBatteries();
   var result = defineColumn(batteries);
-  Logger.log(batteries);
   var sorted = sortBatteries(result, 'state');
   var max = getMaxLength(sorted);
   var answer = [];
-//  Logger.log(sorted);
-//  for (var i=0; i<max; i++) {
-//    answer.push([checkOption(sorted, 'need', i), checkOption(sorted, 'charging', i),checkOption(sorted, 'ready', i), checkOption(sorted, 'absent', i)])
-//  }
-  return sorted;
+  for (var i=0; i<max; i++) {
+    answer.push([checkOption(sorted, 'need', i), checkOption(sorted, 'charging', i),checkOption(sorted, 'ready', i), checkOption(sorted, 'absent', i)])
+  }
+  return answer;
 }
 
 //в батарейках зберігається остання дія (state) і дані (status)
-// Якщо
+// Якщо 
 
 function defineColumn(batteries){
   var result = []
@@ -25,15 +23,15 @@ function defineColumn(batteries){
     }else{
       //if need or ready - check maybe new cycle needed
       var state_status = getMethod(batteries[i]);
-      result.push({id: batteries[i].id, name: batteries[i].name, state: state_status.state, status: state_status.status});
+      result.push({id: batteries[i].id, name: batteries[i].name, state: state_status.state, status: state_status.status});  
     }
   }
   return result;
 }
 function checkBatteryBreakIn(battery, options){
-  if (getChargeCount(battery.count_cycle, battery.count_refresh) >= options.charge_count ||
+  if (getChargeCount(battery.count_cycle, battery.count_refresh) >= options.charge_count || 
       getLastCharge(battery.date_cycle, battery.date_refresh, battery.date_break) >= options.last_charge ||
-      battery.status < parseFloat(battery.capasity*options.percentage_capasity/100) ||
+      battery.status < parseFloat(battery.capasity*options.percentage_capasity/100) || 
       battery.status == BREAKIN ){
     return true
   }else{
@@ -81,7 +79,7 @@ function getMaxLength(array) {
     if (array[i].length > max) {
       max = array[i].length;
     }
-  }
+  }   
   return max;
 }
 

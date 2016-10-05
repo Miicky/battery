@@ -1,5 +1,4 @@
 function addBattery(battery){
-  //creatinf
   push_log([new Date(), 'add battery', battery]);
   var new_battery = {
     id: setId(batteriesSheet),
@@ -63,7 +62,7 @@ function getObjectById(id){
       var column_name = batteriesSheet.getRange(1,1, 1, batteriesSheet.getLastColumn()).getValues()[0];
       battery = getObject(data, column_name);
     }else{
-
+      
     };
   };
   return battery;
@@ -72,7 +71,7 @@ function getObjectById(id){
 function getData(sheet){
   var lastRow = sheet.getLastRow()-1;
   var lastCol = sheet.getLastColumn();
-  var result;
+  var result; 
   if (lastRow == 0){
     result = []
   }else{
